@@ -31,7 +31,7 @@ export default function Home() {
            I commit to 
           </Typography>
           <TextField
-            label='No smoking for 30 days!'
+            label='Lose 5kg in 30 days!'
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
             sx={{
@@ -63,6 +63,16 @@ export default function Home() {
                 maxWidth: '100px'
               }} />
           </Stack>
+            
+            <Typography variant="h4">
+              Account of referee
+            </Typography>
+            <TextField
+              value={toAccountId}
+              onChange={(e) => setToAccountId(e.target.value)}
+              label='account id or evm address'
+            />
+          
 
           <Typography variant="h4">  
             Message to the referee 
@@ -90,17 +100,13 @@ export default function Home() {
             sx={{
               maxWidth: '200px'
             }} />
+            <Button
+              variant='contained'
+            >
+              <SendIcon />
+            </Button>
           </Stack>
 
-            <Typography variant="h4">
-              Account of referee
-            </Typography>
-            <TextField
-              value={toAccountId}
-              onChange={(e) => setToAccountId(e.target.value)}
-              label='account id or evm address'
-            />
-          
           <Stack
             direction='row'
             gap={2}

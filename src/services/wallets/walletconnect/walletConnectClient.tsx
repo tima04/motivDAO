@@ -88,7 +88,8 @@ class WalletConnectWallet implements WalletInterface {
     return null;
     */
     const rand = Math.floor(Math.random() * 100)
-    const topicId = "0.0." + rand 
+    //0.0.6503410
+    const topicId = "0.0." + rand + "410"
     console.log(`Your topic ID is: ${topicId}`);
     const result = await new Promise((resolve) => resolve(topicId));
     return result ? topicId : null;
