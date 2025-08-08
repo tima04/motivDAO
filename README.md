@@ -1,3 +1,3 @@
 # In the root of the folder 
-npm install
+npm install  
 npm start 
