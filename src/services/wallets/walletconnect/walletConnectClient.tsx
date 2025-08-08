@@ -214,19 +214,19 @@ class WalletConnectWallet implements WalletInterface {
     );
   }
 
-  async createTopic(message=""): Promise<string | null> {
+  async createTopic(goal=""): Promise<string | null> {
     const signer = this.getSigner();
     const tx = new TopicCreateTransaction()
-    .setTopicMemo("Commitment")
+    .setTopicMemo("Commitment!")
     const frozenTx = await tx.freezeWithSigner(signer);
     const txResponse = await frozenTx.executeWithSigner(signer);
     const receipt = await txResponse.getReceiptWithSigner(signer);
     const topicId = receipt.topicId;
     console.log(`Your topic ID is: ${topicId}`);
     if (topicId !== undefined && topicId !== null) {
-      let message2send = "Hello, message to referee!"
-      if (message !== "") {
-          let message2send = message
+      let message2send = "I commit to achieve my goal! "
+      if (goal!== "") {
+        let message2send = `I make a commitment to: ${goal}`
       }
       let sendResponse = await (await new TopicMessageSubmitTransaction({
         topicId: topicId,

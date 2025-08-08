@@ -19,7 +19,7 @@ function App() {
             flexDirection: 'column',
             minHeight: '100vh',
             backgroundColor: '#222222',
-            backgroundImage: `url(${colorBackground})`,
+            //backgroundImage: `url(${colorBackground})`,
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center'
@@ -31,6 +31,18 @@ function App() {
           <Box
             flex={1}
             p={3}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh',
+            height: 100,
+            widows: 100,
+            backgroundColor: '#222222',
+            //backgroundImage: `url(${colorBackground})`,
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center'
+          }}
           >
             <AppRouter />
           </Box>
