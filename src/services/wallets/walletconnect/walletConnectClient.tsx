@@ -1,12 +1,36 @@
 import { WalletConnectContext } from "../../../contexts/WalletConnectContext";
 import { useCallback, useContext, useEffect } from 'react';
 import { WalletInterface } from "../walletInterface";
-import { AccountId, ContractExecuteTransaction, ContractId, LedgerId, TokenAssociateTransaction, TokenId, Transaction, TransactionId, TransferTransaction, Client, TopicCreateTransaction } from "@hashgraph/sdk";
+import {
+  AccountId,
+  ContractExecuteTransaction,
+  ContractId,
+  LedgerId,
+  TokenAssociateTransaction,
+  TokenId,
+  Transaction,
+  TransactionId,
+  TransferTransaction,
+  Client,
+  TopicCreateTransaction,
+  TokenCreateTransaction,
+  TokenType,
+  TokenSupplyType,
+  Hbar,
+  TokenMintTransaction,
+  TopicMessageSubmitTransaction,
+  TopicMessageQuery,
+  TopicMessage,
+  PrivateKey,
+  TopicId,
+} from "@hashgraph/sdk";
 import { ContractFunctionParameterBuilder } from "../contractFunctionParameterBuilder";
 import { appConfig } from "../../../config";
 import { SignClientTypes } from "@walletconnect/types";
 import { DAppConnector, HederaJsonRpcMethod, HederaSessionEvent, HederaChainId, SignAndExecuteTransactionParams, transactionToBase64String } from "@hashgraph/hedera-wallet-connect";
 import EventEmitter from "events";
+import { Buffer } from 'buffer';
+
 
 // Created refreshEvent because `dappConnector.walletConnectClient.on(eventName, syncWithWalletConnectContext)` would not call syncWithWalletConnectContext
 // Reference usage from walletconnect implementation https://github.com/hashgraph/hedera-wallet-connect/blob/main/src/lib/dapp/index.ts#L120C1-L124C9
@@ -75,24 +99,165 @@ class WalletConnectWallet implements WalletInterface {
     return txResult ? txResult.transactionId : null;
   }
 
-  async createTopic(): Promise<string | null> {
-    /*
+  async createNFT(toAddress: AccountId) {
+    const supplyKey = PrivateKey.generate();
+    const accountId = this.getAccountId();
     const signer = this.getSigner();
-    const txResponse = new TopicCreateTransaction().executeWithSigner(signer);
-    const receipt = await (await txResponse).getReceiptWithSigner(signer);
+    const nftCreate = await new TokenCreateTransaction()
+      .setTokenName("Success!")
+      .setTokenSymbol("Congrats!")
+      .setTokenType(TokenType.NonFungibleUnique)
+      .setDecimals(0)
+      .setInitialSupply(0)
+      .setTreasuryAccountId(accountId)
+      .setSupplyType(TokenSupplyType.Finite)
+      .setMaxSupply(1)
+      .setSupplyKey(supplyKey)
+      .freezeWithSigner(signer);
+
+    //Sign the transaction with the treasury key
+    const nftCreateTxSign = await nftCreate.signWithSigner(signer);
+    //Submit the transaction to a Hedera network
+    const nftCreateSubmit = await nftCreateTxSign.executeWithSigner(signer);
+    //Get the transaction receipt
+    const nftCreateRx = await nftCreateSubmit.getReceiptWithSigner(signer);
+    //Get the token ID
+    const tokenId = nftCreateRx.tokenId;
+
+    //Log the token ID
+    console.log(`\nCreated NFT with Token ID: ` + tokenId);
+    // Max transaction fee as a constant
+    const maxTransactionFee = new Hbar(10);
+    const CID = [
+      new Uint8Array(
+        Buffer.from(
+        "ipfs://bafyreic463uarchq4mlufp7pvfkfut7zeqsqmn3b2x3jjxwcjqx6b5pk7q/metadata.json"
+        )
+      ),
+    ];
+
+    /*
+    Pups meta data
+  st_bd = {"name": "ST_BERNARD", "description": "An adorable ST_BERNARD pup!", "image": "https://ipfs.io/ipfs/QmUPjADFGEKmfohdTaNcWhp7VGk26h5jXDA7v3VtTnTLcW?filename=st-bernard.png", "attributes": [{"trait_type": "cuteness", "value": 100}]}
+  shiba = {"name": "SHIBA_INU", "description": "An adorable SHIBA_INU pup!", "image": "https://ipfs.io/ipfs/QmYx6GsYAKnNzZ9A6NvEKV9nf1VaDzJrqDR23Y8YSkebLU?filename=shiba-inu.png", "attributes": [{"trait_type": "cuteness", "value": 100}]}
+  pug = {"name": "PUG", "description": "An adorable PUG pup!", "image": "https://ipfs.io/ipfs/QmSsYRx3LpDAb1GZQm7zZ1AuHZjfbPkD6J7s9r41xu1mf8?filename=pug.png", "attributes": [{"trait_type": "cuteness", "value": 100}]}
+    */
+
+    const pug = {
+      "name": "PUG", "description": "An adorable PUG pup!",
+      //"image": "https://ipfs.io/ipfs/QmSsYRx3LpDAb1GZQm7zZ1AuHZjfbPkD6J7s9r41xu1mf8?filename=pug.png", 
+      "attributes": [{ "trait_type": "cuteness", "value": 100 }]
+    }
+
+    const CID2 = [
+      new Uint8Array(
+        Buffer.from(JSON.stringify(pug)
+        )
+      ),
+    ];
+
+    let mintTx;
+    if (tokenId) {
+      mintTx = new TokenMintTransaction()
+        .setTokenId(tokenId)
+        .setMetadata(CID) //Batch minting - UP TO 10 NFTs in single tx
+        .setMaxTransactionFee(maxTransactionFee)
+        .freezeWithSigner(signer);
+      // You may want to handle mintTx further here
+    } else {
+      throw new Error("Token ID is null. Failed to create NFT.");
+    }
+
+    //Sign the transaction with the supply key
+    const mintTxSign = await (await mintTx).sign(supplyKey);
+
+    //Submit the transaction to a Hedera network
+    const mintTxSubmit = await mintTxSign.executeWithSigner(signer);
+
+    //Get the transaction receipt
+    const mintRx = await mintTxSubmit.getReceiptWithSigner(signer);
+    //Log the serial number
+    console.log(
+      "Created NFT " + tokenId + " with serial number: " + mintRx.serials + "\n"
+    );
+
+    /*
+    //Create the associate transaction and sign with Alice's key
+    const associateAliceTx = await (await new TokenAssociateTransaction()
+     .setAccountId(accountId)
+     .setTokenIds([tokenId])
+     .freezeWithSigner(signer)).signWithSigner(signer)
+
+    //Submit the transaction to a Hedera network
+    const associateAliceTxSubmit = await associateAliceTx.executeWithSigner(signer);
+
+    //Get the transaction receipt
+    const associateAliceRx = await associateAliceTxSubmit.getReceiptWithSigner(signer);
+
+    //Confirm the transaction was successful
+    console.log(
+     `NFT association with Alice's account: ${associateAliceRx.status}\n`
+    );
+    */
+
+    // Transfer the NFT from treasury to Alice
+    // Sign with the treasury key to authorize the transfer
+    const tokenTransferTx = await (await new TransferTransaction()
+      .addNftTransfer(tokenId, 1, accountId, toAddress)
+      .freezeWithSigner(signer)).signWithSigner(signer)
+
+    const tokenTransferSubmit = await tokenTransferTx.executeWithSigner(signer)
+    const tokenTransferRx = await tokenTransferSubmit.getReceiptWithSigner(signer)
+
+    console.log(
+      `\nNFT transfered: ${tokenTransferRx.status} \n`
+    );
+  }
+
+  async createTopic(message=""): Promise<string | null> {
+    const signer = this.getSigner();
+    const tx = new TopicCreateTransaction()
+    .setTopicMemo("Commitment")
+    const frozenTx = await tx.freezeWithSigner(signer);
+    const txResponse = await frozenTx.executeWithSigner(signer);
+    const receipt = await txResponse.getReceiptWithSigner(signer);
     const topicId = receipt.topicId;
     console.log(`Your topic ID is: ${topicId}`);
     if (topicId !== undefined && topicId !== null) {
+      let message2send = "Hello, message to referee!"
+      if (message !== "") {
+          let message2send = message
+      }
+      let sendResponse = await (await new TopicMessageSubmitTransaction({
+        topicId: topicId,
+        message: message2send,
+      })
+      .freezeWithSigner(signer))
+      .executeWithSigner(signer)
+      // Get the receipt of the transaction
+      //const getReceipt = await sendResponse.getReceiptWithSigner(signer);
+      // Get the status of the transaction
+       //const transactionStatus = getReceipt.status
+       //console.log("The message transaction status " + transactionStatus.toString())
       return topicId.toString();
     }
     return null;
-    */
-    const rand = Math.floor(Math.random() * 100)
-    //0.0.6503410
-    const topicId = "0.0." + rand + "410"
-    console.log(`Your topic ID is: ${topicId}`);
-    const result = await new Promise((resolve) => resolve(topicId));
-    return result ? topicId : null;
+  }
+
+  async sendMessage(topicId: string, message: string) {
+    //TopicId.fromString(topicId),
+    const signer = this.getSigner();
+    let frozenTx = await new TopicMessageSubmitTransaction({
+      topicId,
+      message: message,
+    }).freezeWithSigner(signer);
+    let sendResponse = await frozenTx.executeWithSigner(signer);
+    // Get the receipt of the transaction
+    const getReceipt = await sendResponse
+      .getReceiptWithSigner(signer)
+    // Get the status of the transaction
+    const transactionStatus = getReceipt.status
+    console.log("The message transaction status " + transactionStatus.toString())
   }
 
   async transferFungibleToken(toAddress: AccountId, tokenId: TokenId, amount: number) {

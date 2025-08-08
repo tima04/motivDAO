@@ -9,4 +9,5 @@ export interface WalletInterface {
   transferNonFungibleToken: (toAddress: AccountId, tokenId: TokenId, serialNumber: number) => Promise<TransactionId | string | null>;
   associateToken: (tokenId: TokenId) => Promise<TransactionId | string | null>;
   createTopic: () => Promise<string | null>;
+  createNFT: (toAddress: AccountId) => void;
 }

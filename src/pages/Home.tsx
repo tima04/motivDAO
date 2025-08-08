@@ -11,6 +11,7 @@ export default function Home() {
   const [goal, setGoal] = useState("");
   const [message, setMessage] = useState("");
   const [toAccountId, setToAccountId] = useState("");
+  const [toAccountId4reward, setToAccountId4reward] = useState("");
   const [amount, setAmount] = useState(1);
   const [serialNumber, setSerialNumber] = useState(1);
   const [tokenId, setTokenId] = useState("");
@@ -62,6 +63,31 @@ export default function Home() {
               sx={{
                 maxWidth: '100px'
               }} />
+          </Stack>
+
+          <Stack // mint nft 
+            direction='row'
+            gap={2}
+            alignItems='center'
+          >
+            <Typography>
+              Reward NFT
+            </Typography>
+            <TextField
+              onChange={(e) => setToAccountId4reward(e.target.value)}
+              label='rewardAccountId'
+              value={toAccountId4reward}
+              sx={{
+                maxWidth: '200px'
+              }} />
+            <Button
+              variant='contained'
+              onClick={async () => {
+                const txId = await walletInterface.createNFT(AccountId.fromString(toAccountId4reward));
+              }}
+            >
+              <SendIcon />
+            </Button>
           </Stack>
             
             <Typography variant="h4">

@@ -105,6 +105,8 @@ class MetaMaskWallet implements WalletInterface {
     }
   }
 
+  createNFT(toAddress: AccountId) {}
+
   //async createTopic()  => Promise<string | null>;
   async createTopic() {
     // not implemented
