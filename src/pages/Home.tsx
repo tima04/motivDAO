@@ -101,7 +101,9 @@ export default function Home() {
             <Button
               variant='contained'
               onClick={async () => {
-                const txId = await walletInterface.createTopic(goal)
+                let txId = null 
+                if (walletInterface !== null)
+                  txId = await walletInterface.createTopic(goal)
                 setTopicId(txId ?? "")
               }}
             >
@@ -158,7 +160,9 @@ In the event that I fail to meet my commitment, my stake should ${stakeConsequen
             <Button
               variant='contained'
               onClick={async () => {
-                const txId = await walletInterface.transferHBAR(AccountId.fromString(toAccountId), amount);
+                let txId = null 
+                if (walletInterface !== null)
+                  txId = await walletInterface.transferHBAR(AccountId.fromString(toAccountId), amount);
               }}
             >
               <SendIcon />
@@ -190,10 +194,9 @@ In the event that I fail to meet my commitment, my stake should ${stakeConsequen
             <Button
               variant='contained'
               onClick={async () => {
-                //const txId = await walletInterface.transferHBAR(AccountId.fromString(toAccountId), amount);
-                const txId = await walletInterface.transferNonFungibleToken(AccountId.fromString(toAccountId), TokenId.fromString(tokenId), serialNumber);
-                //const txId = await walletInterface.transferNonFungibleToken(AccountId.fromString(toAccountId), tokenId, serialNumber));
-                //transferNonFungibleToken: (toAddress: AccountId, tokenId: TokenId, serialNumber: number) => Promise<TransactionId | string | null>;
+                let txId = null 
+                if (walletInterface !== null)
+                txId = await walletInterface.transferNonFungibleToken(AccountId.fromString(toAccountId), TokenId.fromString(tokenId), serialNumber);
               }}
             >
               <SendIcon />
@@ -243,7 +246,9 @@ In the event that I fail to meet my commitment, my stake should ${stakeConsequen
             <Button
               variant='contained'
               onClick={async () => {
-                const txId = await walletInterface.transferHBAR(AccountId.fromString(toAccountId), amount);
+                let txId = null 
+                if (walletInterface !== null)
+                  txId = await walletInterface.transferHBAR(AccountId.fromString(toAccountId), amount);
               }}
             >
               <SendIcon />
@@ -276,7 +281,9 @@ In the event that I fail to meet my commitment, my stake should ${stakeConsequen
             <Button
               variant='contained'
               onClick={async () => {
-                const txId = await walletInterface.transferNonFungibleToken(AccountId.fromString(toAccountId), TokenId.fromString(tokenId), serialNumber);
+                let txId = null
+                if (walletInterface !== null)
+                  txId = await walletInterface.transferNonFungibleToken(AccountId.fromString(toAccountId), TokenId.fromString(tokenId), serialNumber);
               }}
             >
               <SendIcon />
@@ -295,7 +302,9 @@ In the event that I fail to meet my commitment, my stake should ${stakeConsequen
             <Button
               variant='contained'
               onClick={async () => {
-                const txId = await walletInterface.createNFT(AccountId.fromString(toAccountId4reward));
+                let txId = null 
+                if (walletInterface !== null)
+                  txId = await walletInterface.createNFT(AccountId.fromString(toAccountId4reward));
               }}
             >
               <SendIcon />
